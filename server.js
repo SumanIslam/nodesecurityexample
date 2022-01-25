@@ -30,15 +30,29 @@ function verifyCallback(accessToken, refreshToken, profile, done) {
   done(null, profile);
 }
 
+// save the session to the cookie
+passport.serializeUser((user, done) => {
+  done(null, user)
+});
+
+// Read the session from the cookie
+passport.deserializeUser((obj,done) => {
+  done(null, obj);
+})
+
 const app = express();
 
 app.use(helmet());
+
 app.use(cookieSession({
   name: 'session',
   maxAge: 24 * 60 * 60 * 1000,
-  secret: [config.COOKIE_KEY_1, config.COOKIE_KEY_2]
+  keys: [config.COOKIE_KEY_1, config.COOKIE_KEY_2]
 }))
+
 app.use(passport.initialize());
+app.use(passport.session())
+
 passport.use(new Strategy(OAUTH_OPTIONS, verifyCallback))
 
 
@@ -58,14 +72,17 @@ app.get('/auth/google', passport.authenticate('google', {
 
 app.get('/auth/google/callback', passport.authenticate('google', {
   failureRedirect: '/failure',
-  successRedirect: '/',
-  session: false,
+  // successRedirect: '/',
+  session: true,
 }), (req, res) => {
   console.log('google called us back!');
   res.redirect('/');
 });
 
-app.get('/auth/logout', (req, res) => {});
+app.get('/auth/logout', (req, res) => {
+  req.logout();
+  res.redirect('/');
+});
 
 app.get('/secret', checkLoggedIn, (req, res) => {
   return res.send('Your personal secret value is 42!');
