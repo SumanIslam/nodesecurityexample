@@ -32,12 +32,15 @@ function verifyCallback(accessToken, refreshToken, profile, done) {
 
 // save the session to the cookie
 passport.serializeUser((user, done) => {
-  done(null, user)
+  done(null, user.id)
 });
 
 // Read the session from the cookie
-passport.deserializeUser((obj,done) => {
-  done(null, obj);
+passport.deserializeUser((id,done) => {
+  // User.findById(id).then(user => {
+  //   done(null, user);
+  // })
+  done(null, id);
 })
 
 const app = express();
