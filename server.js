@@ -60,7 +60,8 @@ passport.use(new Strategy(OAUTH_OPTIONS, verifyCallback))
 
 
 function checkLoggedIn(req, res, next) {
-  const loggedIn = true; // TODO:
+  console.log('Current user is: ', req.user);
+  const loggedIn = req.user;
   if(!loggedIn) {
     return res.status(401).json({
       error: 'You must log in',
